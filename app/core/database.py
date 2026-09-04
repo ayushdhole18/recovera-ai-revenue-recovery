@@ -304,3 +304,31 @@ def get_database_counts(db_path: str = DATABASE_PATH) -> Dict[str, int]:
 
     conn.close()
     return counts
+
+
+def ensure_database_initialized(db_path: str = DATABASE_PATH) -> None:
+    """Ensures database schema and seed data exist without overwriting an existing populated DB."""
+    db_file = Path(db_path)
+    if not db_file.exists() or db_file.stat().st_size == 0:
+        from app.core.seed_data import seed_database
+        seed_database(db_path)
+        return
+
+    try:
+        conn = get_connection(db_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='merchants'")
+        table_exists = cursor.fetchone()[0] > 0
+        merchant_count = 0
+        if table_exists:
+            cursor.execute("SELECT COUNT(*) FROM merchants")
+            merchant_count = cursor.fetchone()[0]
+        conn.close()
+
+        if not table_exists or merchant_count == 0:
+            from app.core.seed_data import seed_database
+            seed_database(db_path)
+    except Exception:
+        from app.core.seed_data import seed_database
+        seed_database(db_path)
+

@@ -12,7 +12,9 @@ if str(root_path) not in sys.path:
     sys.path.insert(0, str(root_path))
 
 from app.config import DATABASE_PATH
+from app.core.database import ensure_database_initialized
 from app.core.models import TransactionStatus, CalibrationBucket
+
 from app.utils.currency import format_inr, convert_usd_to_inr
 from app.services.ui_helpers import (
     get_merchant_dropdown_options, load_transaction_grid_dataframe,
@@ -767,8 +769,12 @@ def render_analytics_evaluation():
 
 
 def main():
+    # Ensure SQLite schema and seed data exist on app startup (e.g. Streamlit Cloud)
+    ensure_database_initialized(DATABASE_PATH)
+
     # Sidebar Navigation
     st.sidebar.title("Recovera AI")
+
     st.sidebar.caption("Revenue Recovery Platform v1.0")
 
 

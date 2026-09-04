@@ -122,3 +122,17 @@ def test_seed_database_functionality(temp_db):
     assert counts["transactions"] >= 1000
     assert counts["business_rules"] >= 40
     assert counts["audit_trail"] > 0
+
+
+def test_ensure_database_initialized_idempotency(temp_db):
+    from app.core.database import ensure_database_initialized, get_database_counts
+    # 1. Initialize DB on unseeded file
+    ensure_database_initialized(temp_db)
+    counts1 = get_database_counts(temp_db)
+    assert counts1["merchants"] == 10
+
+    # 2. Second call must be idempotent and NOT overwrite or reset data
+    ensure_database_initialized(temp_db)
+    counts2 = get_database_counts(temp_db)
+    assert counts2["merchants"] == counts1["merchants"]
+
