@@ -191,3 +191,28 @@ body, .stApp {
   font-size: 0.85rem;
   color: var(--text-secondary);
 }
+
+/* Sidebar Collapse Button & Icon Font Reset */
+button[data-testid="stSidebarCollapseButton"],
+button[data-testid="stSidebarCollapseButton"] *,
+div[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"] *,
+[data-testid="stIconMaterial"],
+.material-symbols-rounded,
+.material-icons {
+  font-family: 'Material Symbols Rounded', 'Material Icons', sans-serif !important;
+}
+
+
+/* Button & Interactive Element Consistency */
+.stButton > button {
+  border-radius: 8px !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.stButton > button:hover {
+  border-color: var(--accent-ai) !important;
+  box-shadow: 0 0 12px var(--accent-ai-glow) !important;
+}
+
+

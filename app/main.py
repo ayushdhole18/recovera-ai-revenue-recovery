@@ -768,9 +768,9 @@ def render_analytics_evaluation():
 
 def main():
     # Sidebar Navigation
-    st.sidebar.image("https://img.icons8.com/isometric-folders/100/lightning-bolt.png", width=48)
     st.sidebar.title("Recovera AI")
     st.sidebar.caption("Revenue Recovery Platform v1.0")
+
 
     nav_options = [
         "1. Executive Dashboard",
@@ -791,10 +791,8 @@ def main():
     selected_page = st.sidebar.radio("Navigation", nav_options, index=default_nav_idx)
     st.session_state["nav_selection"] = selected_page
 
-    st.sidebar.markdown("---")
-    st.sidebar.info("💡 **Hackathon Ready**: Append-only SQLite Audit Trail & Gemini Diagnostic Agent active.")
-
     selected_mch_id = render_header()
+
 
     # Page Route Handler
     if selected_page.startswith("1."):
