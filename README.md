@@ -4,7 +4,7 @@ Recovera AI is an intelligent, safety-first revenue recovery platform that detec
 
 ---
 
-## 📌 Problem Statement
+##  Problem Statement
 
 Involuntary churn caused by payment failures accounts for **up to 40% of customer churn** in subscription and e-commerce businesses. Payments fail due to diverse reasons—insufficient funds, expired cards, stolen card blocks, bank downtime, or incorrect billing addresses. 
 
@@ -15,7 +15,7 @@ Traditional payment recovery relies on blunt force automated retries or manual o
 
 ---
 
-## 💡 Solution Overview
+##  Solution Overview
 
 Recovera AI bridges advanced AI diagnostics with strict financial governance using a **Safety-First Architecture**:
 1. **Automated Failure Detection**: Categorizes transaction declines into recoverable (`SOFT_DECLINE`) and unrecoverable (`HARD_DECLINE`) categories.
@@ -26,7 +26,7 @@ Recovera AI bridges advanced AI diagnostics with strict financial governance usi
 
 ---
 
-## ⚡ Key Features
+##  Key Features
 
 - **8 Operational Workspace Screens**:
   1. **Executive Dashboard**: Real-time financial telemetry in INR (`₹`), revenue leakage breakdown, recovery funnel, and action performance.
@@ -42,7 +42,7 @@ Recovera AI bridges advanced AI diagnostics with strict financial governance usi
 
 ---
 
-## 🔄 Application Workflow
+##  Application Workflow
 
 ```
 [ Failed Payment Event ]
@@ -72,7 +72,7 @@ Recovera AI bridges advanced AI diagnostics with strict financial governance usi
 
 ---
 
-## 🏗️ System Architecture
+##  System Architecture
 
 ```
                                   +---------------------------------------+
@@ -113,7 +113,7 @@ Recovera AI bridges advanced AI diagnostics with strict financial governance usi
 
 ---
 
-## 🧠 AI/ML Functionality & Fallback Architecture
+##  AI/ML Functionality & Fallback Architecture
 
 - **Primary Model**: Powered by **Google Gemini 2.5 Flash** (`google-genai` SDK) utilizing structured JSON response schema enforcement.
 - **Diagnostic Capabilities**:
@@ -126,7 +126,7 @@ Recovera AI bridges advanced AI diagnostics with strict financial governance usi
 
 ---
 
-## 🛡️ Safety Architecture & Governance
+##  Safety Architecture & Governance
 
 The **Rule Engine** is the non-bypassable final authority before financial execution:
 - **`MAX_RETRY_COUNT`**: Enforces merchant cap on cumulative retry attempts.
@@ -138,7 +138,7 @@ The **Rule Engine** is the non-bypassable final authority before financial execu
 
 ---
 
-## ⚡ Recovery Execution Flow (Simulated Gateway)
+##  Recovery Execution Flow (Simulated Gateway)
 
 To evaluate recovery strategies without real-world credit card processing risks, Recovera AI integrates a **Deterministic Payment Gateway Simulator** (`app/services/executor.py`):
 1. **Pre-Execution Check**: Verifies that `rule_validation.is_allowed == True`.
@@ -150,7 +150,7 @@ To evaluate recovery strategies without real-world credit card processing risks,
 
 ---
 
-## 📜 Append-Only Audit Trail
+## Append-Only Audit Trail
 
 Recovera AI implements an immutable governance ledger stored in the SQLite `audit_trail` table:
 - **Database-Level Triggers**:
@@ -160,7 +160,7 @@ Recovera AI implements an immutable governance ledger stored in the SQLite `audi
 
 ---
 
-## 📈 Analytics & Model Evaluation
+##  Analytics & Model Evaluation
 
 The evaluation suite (`app/services/evaluation.py`) measures framework performance:
 - **Revenue Metrics**: Revenue at risk, potentially recoverable revenue, recovered revenue, and recovery rate percentage formatted in INR (`₹`).
@@ -170,7 +170,7 @@ The evaluation suite (`app/services/evaluation.py`) measures framework performan
 
 ---
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 - **Frontend & Visualization**: Streamlit (v1.30+), Plotly (v5.0+), Custom Vanilla CSS (`assets/style.css` with Copperplate Gothic Light typography).
 - **Backend & Core Logic**: Python 3.10+, Pydantic (v2.0+), Pandas, NumPy.
@@ -180,7 +180,7 @@ The evaluation suite (`app/services/evaluation.py`) measures framework performan
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 recovera-ai/
