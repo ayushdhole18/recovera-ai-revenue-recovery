@@ -1,20 +1,23 @@
 from decimal import Decimal
 from typing import Optional, Any
 import streamlit as st
+from app.utils.currency import format_inr
 
 
 def render_metric_card(title: str, value: Any, subtext: Optional[str] = None):
     """
     Renders a dark fintech metric card using custom HTML/CSS.
-    Preserves exact monetary formatting.
+    Preserves exact monetary formatting in INR (₹).
     """
     if isinstance(value, Decimal):
-        val_str = f"${value:,.2f}"
+        val_str = format_inr(value, is_converted=True)
     elif isinstance(value, float):
-        if value <= 1.0 and "Rate" not in title:
+        if "Rate" in title or "pct" in title.lower():
+            val_str = f"{value:.2f}%"
+        elif value <= 1.0:
             val_str = f"{value:.4f}"
         else:
-            val_str = f"{value:.2f}%"
+            val_str = format_inr(value, is_converted=True)
     else:
         val_str = str(value)
 
@@ -28,3 +31,4 @@ def render_metric_card(title: str, value: Any, subtext: Optional[str] = None):
     </div>
     """
     st.markdown(card_html, unsafe_allow_html=True)
+

@@ -8,14 +8,15 @@ def apply_dark_fintech_layout(fig: go.Figure, title_text: str) -> go.Figure:
     """
     Applies consistent dark fintech styling layout to Plotly charts.
     """
+    font_family = "'Copperplate Gothic Light', 'Copperplate Gothic', 'Copperplate', 'Cinzel', serif, sans-serif"
     fig.update_layout(
         title=dict(
             text=f"<b>{title_text}</b>",
-            font=dict(family="Inter, sans-serif", size=14, color="#F8FAFC")
+            font=dict(family=font_family, size=14, color="#F8FAFC")
         ),
         paper_bgcolor="rgba(20, 28, 43, 0.6)",
         plot_bgcolor="rgba(11, 15, 23, 0.4)",
-        font=dict(family="Inter, sans-serif", color="#94A3B8", size=12),
+        font=dict(family=font_family, color="#94A3B8", size=12),
         margin=dict(l=20, r=20, t=40, b=20),
         xaxis=dict(
             gridcolor="#26354D",
@@ -30,7 +31,7 @@ def apply_dark_fintech_layout(fig: go.Figure, title_text: str) -> go.Figure:
             linecolor="#26354D"
         ),
         legend=dict(
-            font=dict(color="#F8FAFC"),
+            font=dict(color="#F8FAFC", family=font_family),
             bgcolor="rgba(20, 28, 43, 0.8)",
             bordercolor="#26354D"
         )
@@ -64,7 +65,7 @@ def build_recovery_funnel_chart(funnel_data: Dict[str, float]) -> go.Figure:
         marker=dict(color=["#EF4444", "#F59E0B", "#3B82F6", "#6366F1", "#10B981"]),
         connector=dict(line=dict(color="#26354D", width=1))
     ))
-    return apply_dark_fintech_layout(fig, "End-to-End Revenue Recovery Funnel ($)")
+    return apply_dark_fintech_layout(fig, "End-to-End Revenue Recovery Funnel (₹)")
 
 
 def build_revenue_leakage_chart(leakage_items: List[RevenueBreakdownItem]) -> go.Figure:
@@ -92,7 +93,8 @@ def build_revenue_leakage_chart(leakage_items: List[RevenueBreakdownItem]) -> go
     ))
 
     fig.update_layout(barmode="group")
-    return apply_dark_fintech_layout(fig, "Revenue Leakage & Recovery by Failure Reason ($)")
+    return apply_dark_fintech_layout(fig, "Revenue Leakage & Recovery by Failure Reason (₹)")
+
 
 
 def build_action_performance_chart(action_items: List[ActionPerformanceItem]) -> go.Figure:

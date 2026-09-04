@@ -89,3 +89,49 @@ def test_explicit_execution_trigger(temp_db):
     assert exec_output["execution_result"] is not None
     assert exec_output["execution_result"].transaction_id == tx_id
     assert exec_output["step_8_revenue_recovered"]["status"] in ["RECOVERED", "SOFT_FAILED", "HARD_FAILED", "MANUAL_REVIEW"]
+
+
+def test_load_transaction_grid_dataframe_filters(temp_db):
+    df_soft = load_transaction_grid_dataframe(temp_db, category_filter="SOFT_DECLINE")
+    assert isinstance(df_soft, pd.DataFrame)
+    if not df_soft.empty:
+        assert (df_soft["decline_category"] == "SOFT_DECLINE").all()
+        assert (df_soft["is_recoverable"] == True).all()
+
+    df_rec = load_transaction_grid_dataframe(temp_db, recoverable_filter="RECOVERABLE")
+    assert isinstance(df_rec, pd.DataFrame)
+    if not df_rec.empty:
+        assert (df_rec["is_recoverable"] == True).all()
+
+
+def test_get_merchant_rules_overview(temp_db):
+    from app.services.ui_helpers import get_merchant_rules_overview
+    overview = get_merchant_rules_overview(merchant_id="ALL", db_path=temp_db)
+    assert "configured_rules" in overview
+    assert "total_evaluated" in overview
+    assert "approved_count" in overview
+    assert "modified_count" in overview
+    assert "blocked_count" in overview
+    assert overview["total_evaluated"] > 0
+
+
+def test_get_all_audit_logs(temp_db):
+    from app.services.analytics import get_all_audit_logs
+    logs = get_all_audit_logs(db_path=temp_db, limit=50)
+    assert isinstance(logs, list)
+    if len(logs) > 0:
+        assert "transaction_id" in logs[0]
+        assert "actor" in logs[0]
+        assert "action_taken" in logs[0]
+
+
+def test_get_evaluation_metrics_summary(temp_db):
+    from app.services.ui_helpers import get_evaluation_metrics_summary
+    eval_dict = get_evaluation_metrics_summary(db_path=temp_db)
+    assert "batch_summary" in eval_dict
+    assert "evaluation_metrics" in eval_dict
+    assert "safety_metrics" in eval_dict
+    bs = eval_dict["batch_summary"]
+    assert "total_failed_revenue_inr" in bs
+    assert bs["total_failed_revenue_inr"] > Decimal("0.00")
+

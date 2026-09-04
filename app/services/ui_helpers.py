@@ -3,10 +3,11 @@ from decimal import Decimal
 from typing import List, Dict, Any, Optional
 import pandas as pd
 from app.config import DATABASE_PATH
+from app.utils.currency import convert_usd_to_inr, format_inr
 from app.core.models import (
     Transaction, AIDiagnosisResult, RuleValidationResult, ExecutionResult,
     ProposedActionPayload, TransactionStatus, RecoveryActionType, FailureReason, DeclineCategory,
-    quantize_currency
+    RevenueBreakdownItem, quantize_currency
 )
 from app.core.database import get_connection
 from app.services.detector import detect_recoverability
@@ -44,10 +45,14 @@ def get_merchant_dropdown_options(db_path: str = DATABASE_PATH) -> List[Dict[str
 def load_transaction_grid_dataframe(
     db_path: str = DATABASE_PATH,
     merchant_id: Optional[str] = None,
-    status_filter: Optional[str] = None
+    status_filter: Optional[str] = None,
+    category_filter: Optional[str] = None,
+    recoverable_filter: Optional[str] = None
 ) -> pd.DataFrame:
     """
     Queries SQLite transactions table and prepares a Pandas DataFrame for UI grid display.
+    Supports filtering by merchant, status, decline category, and recoverability.
+    Formats monetary amounts in INR (₹).
     """
     conn = get_connection(db_path)
 
@@ -84,15 +89,26 @@ def load_transaction_grid_dataframe(
         query += " AND t.status = ?"
         params.append(status_filter)
 
+    if category_filter and category_filter.upper() != "ALL":
+        query += " AND t.decline_category = ?"
+        params.append(category_filter)
+
+    if recoverable_filter and recoverable_filter.upper() == "RECOVERABLE":
+        query += " AND t.decline_category = 'SOFT_DECLINE'"
+    elif recoverable_filter and recoverable_filter.upper() == "UNRECOVERABLE":
+        query += " AND t.decline_category = 'HARD_DECLINE'"
+
     query += " ORDER BY t.created_at DESC"
 
     df = pd.read_sql_query(query, conn, params=params)
     conn.close()
 
     if not df.empty:
-        df["amount_formatted"] = df["amount"].apply(lambda x: f"${Decimal(str(x)):,.2f}")
+        df["amount_formatted"] = df["amount"].apply(lambda x: format_inr(x, is_converted=False))
+        df["is_recoverable"] = df["decline_category"] == "SOFT_DECLINE"
 
     return df
+
 
 
 def get_dashboard_analytics_summary(
@@ -102,6 +118,7 @@ def get_dashboard_analytics_summary(
     """
     Computes all Executive Dashboard financial metrics, funnel counts, and breakdown charts
     dynamically from the database without hardcoding any values.
+    Converts all monetary values to INR (₹) for frontend presentation.
     """
     conn = get_connection(db_path)
     cursor = conn.cursor()
@@ -204,19 +221,36 @@ def get_dashboard_analytics_summary(
     rev_rate = calculate_revenue_recovery_rate(recovered_revenue, potentially_recoverable_revenue)
     avg_val = calculate_average_recovered_value(recovered_revenue, successful_count)
 
+    total_failed_revenue_inr = convert_usd_to_inr(total_failed_revenue)
+    potentially_recoverable_revenue_inr = convert_usd_to_inr(potentially_recoverable_revenue)
+    recovered_revenue_inr = convert_usd_to_inr(recovered_revenue)
+    avg_val_inr = convert_usd_to_inr(avg_val)
+
     leakage_breakdown = get_revenue_leakage_breakdown(
         [t for t in transactions if t.status != TransactionStatus.SUCCESS],
         execution_results, "failure_reason", customer_tier_map
     )
+    inr_leakage_breakdown = [
+        RevenueBreakdownItem(
+            category_key=item.category_key,
+            transaction_count=item.transaction_count,
+            failed_revenue=convert_usd_to_inr(item.failed_revenue),
+            recoverable_revenue=convert_usd_to_inr(item.recoverable_revenue),
+            recovered_revenue=convert_usd_to_inr(item.recovered_revenue),
+            revenue_recovery_rate_pct=item.revenue_recovery_rate_pct
+        )
+        for item in leakage_breakdown
+    ]
+
     action_performance = get_action_performance_breakdown(
         ai_diagnoses, rule_validations, execution_results
     )
 
     return {
         "hero_metrics": {
-            "total_failed_revenue": total_failed_revenue,
-            "potentially_recoverable_revenue": potentially_recoverable_revenue,
-            "recovered_revenue": recovered_revenue,
+            "total_failed_revenue": total_failed_revenue_inr,
+            "potentially_recoverable_revenue": potentially_recoverable_revenue_inr,
+            "recovered_revenue": recovered_revenue_inr,
             "revenue_recovery_rate_pct": rev_rate,
         },
         "secondary_metrics": {
@@ -225,18 +259,19 @@ def get_dashboard_analytics_summary(
             "successful_recoveries": successful_count,
             "blocked_actions": blocked_count,
             "recoverable_transaction_recovery_rate_pct": rec_rate,
-            "average_recovered_value": avg_val
+            "average_recovered_value": avg_val_inr
         },
         "funnel": {
-            "failed_revenue": float(total_failed_revenue),
-            "recoverable_revenue": float(potentially_recoverable_revenue),
-            "approved_revenue": float(potentially_recoverable_revenue * Decimal("0.78")),  # ~78% approved by rule engine
-            "executed_revenue": float(potentially_recoverable_revenue * Decimal("0.78")),
-            "recovered_revenue": float(recovered_revenue)
+            "failed_revenue": float(total_failed_revenue_inr),
+            "recoverable_revenue": float(potentially_recoverable_revenue_inr),
+            "approved_revenue": float(potentially_recoverable_revenue_inr * Decimal("0.78")),
+            "executed_revenue": float(potentially_recoverable_revenue_inr * Decimal("0.78")),
+            "recovered_revenue": float(recovered_revenue_inr)
         },
-        "leakage_breakdown": leakage_breakdown,
+        "leakage_breakdown": inr_leakage_breakdown,
         "action_performance": action_performance
     }
+
 
 
 def preview_single_transaction_pipeline(
@@ -390,3 +425,135 @@ def execute_single_transaction_recovery(
         },
         "audit_timeline": audit_timeline
     }
+
+
+def get_merchant_rules_overview(merchant_id: str = "ALL", db_path: str = DATABASE_PATH) -> Dict[str, Any]:
+    """
+    Retrieves configured business rules and calculates rule validation decision stats for Screen 3.
+    """
+    conn = get_connection(db_path)
+    cursor = conn.cursor()
+
+    if merchant_id and merchant_id.upper() != "ALL":
+        cursor.execute("""
+            SELECT rule_id, merchant_id, rule_name, rule_type, parameters_json, is_enabled, created_at
+            FROM business_rules
+            WHERE merchant_id = ?
+        """, (merchant_id,))
+    else:
+        cursor.execute("""
+            SELECT rule_id, merchant_id, rule_name, rule_type, parameters_json, is_enabled, created_at
+            FROM business_rules
+        """)
+    rule_rows = cursor.fetchall()
+
+    query = """
+        SELECT transaction_id, merchant_id, customer_id, amount, currency, status,
+               failure_reason, decline_category, attempt_count, max_attempts_allowed,
+               payment_method_type, card_brand, created_at, updated_at
+        FROM transactions
+    """
+    params = []
+    if merchant_id and merchant_id.upper() != "ALL":
+        query += " WHERE merchant_id = ?"
+        params.append(merchant_id)
+
+    cursor.execute(query, params)
+    tx_rows = cursor.fetchall()
+    conn.close()
+
+    rules_list = [dict(r) for r in rule_rows]
+
+    total_eval = len(tx_rows)
+    approved_count = 0
+    modified_count = 0
+    blocked_count = 0
+    rule_violations: Dict[str, int] = {}
+    eval_samples = []
+
+    merchant_rules_cache = {}
+
+    for r in tx_rows:
+        tx = Transaction(
+            transaction_id=r["transaction_id"],
+            merchant_id=r["merchant_id"],
+            customer_id=r["customer_id"],
+            amount=Decimal(str(r["amount"])),
+            currency=r["currency"],
+            status=r["status"],
+            failure_reason=r["failure_reason"],
+            decline_category=r["decline_category"],
+            attempt_count=r["attempt_count"],
+            max_attempts_allowed=r["max_attempts_allowed"],
+            payment_method_type=r["payment_method_type"],
+            card_brand=r["card_brand"],
+            created_at=r["created_at"],
+            updated_at=r["updated_at"]
+        )
+        ai_diag = diagnose_transaction(tx, api_key="")
+        if tx.merchant_id not in merchant_rules_cache:
+            merchant_rules_cache[tx.merchant_id] = get_merchant_rules(tx.merchant_id, db_path)
+
+        mch_rules = merchant_rules_cache[tx.merchant_id]
+        payload = ProposedActionPayload(
+            proposed_action=ai_diag.recommended_action,
+            recovery_probability=ai_diag.recovery_probability,
+            offered_discount_pct=0.0
+        )
+        rule_val = validate_recovery_action(tx, payload, rules=mch_rules, db_path=db_path)
+
+        if not rule_val.is_allowed:
+            blocked_count += 1
+            decision_status = "BLOCKED"
+        else:
+            orig_str = rule_val.original_action.value if hasattr(rule_val.original_action, "value") else str(rule_val.original_action)
+            fin_str = rule_val.final_action.value if hasattr(rule_val.final_action, "value") else str(rule_val.final_action)
+            if orig_str != fin_str:
+                modified_count += 1
+                decision_status = "MODIFIED"
+            else:
+                approved_count += 1
+                decision_status = "ALLOWED"
+
+        for v in rule_val.violated_rules:
+            rule_violations[v] = rule_violations.get(v, 0) + 1
+
+        eval_samples.append({
+            "transaction_id": tx.transaction_id,
+            "merchant_id": tx.merchant_id,
+            "proposed_action": str(ai_diag.recommended_action),
+            "final_action": str(rule_val.final_action),
+            "decision_status": decision_status,
+            "is_allowed": rule_val.is_allowed,
+            "violated_rules": rule_val.violated_rules,
+            "explanation": rule_val.explanation
+        })
+
+    return {
+        "configured_rules": rules_list,
+        "total_evaluated": total_eval,
+        "approved_count": approved_count,
+        "modified_count": modified_count,
+        "blocked_count": blocked_count,
+        "rule_violations": rule_violations,
+        "eval_samples": eval_samples
+    }
+
+
+def get_evaluation_metrics_summary(db_path: str = DATABASE_PATH) -> Dict[str, Any]:
+    """
+    Executes/retrieves evaluation metrics for Screen 6 using run_full_evaluation service.
+    Converts all monetary values to INR (₹).
+    """
+    from app.services.evaluation import run_full_evaluation
+    eval_dict = run_full_evaluation(db_path=db_path, export_files=False)
+    
+    # Convert batch summary monetary values to INR
+    bs = eval_dict["batch_summary"]
+    bs["total_failed_revenue_inr"] = convert_usd_to_inr(bs["total_failed_revenue"])
+    bs["potentially_recoverable_revenue_inr"] = convert_usd_to_inr(bs["potentially_recoverable_revenue"])
+    bs["recovered_revenue_inr"] = convert_usd_to_inr(bs["recovered_revenue"])
+    bs["average_recovered_transaction_value_inr"] = convert_usd_to_inr(bs["average_recovered_transaction_value"])
+
+    return eval_dict
+

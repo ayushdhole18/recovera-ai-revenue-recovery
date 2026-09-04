@@ -2,6 +2,7 @@ from typing import Dict, Any
 import streamlit as st
 from app.components.status_badge import render_status_badge
 from app.components.safety_banner import render_safety_banner
+from app.utils.currency import format_inr
 
 
 def render_workflow_stepper(pipeline_data: Dict[str, Any]):
@@ -26,7 +27,7 @@ def render_workflow_stepper(pipeline_data: Dict[str, Any]):
         <div class="stepper-content">
             <div class="stepper-title">PAYMENT FAILED — Transaction Metadata</div>
             <div class="stepper-body">
-                Transaction ID: <code>{tx.transaction_id}</code> | Amount: <strong>${tx.amount:,.2f} {tx.currency}</strong><br/>
+                Transaction ID: <code>{tx.transaction_id}</code> | Amount: <strong>{format_inr(tx.amount)}</strong><br/>
                 Customer: <code>{tx.customer_id}</code> | Failure Reason: <code>{tx.failure_reason}</code> | Method: {tx.payment_method_type} ({tx.card_brand})
             </div>
         </div>
@@ -134,7 +135,7 @@ def render_workflow_stepper(pipeline_data: Dict[str, Any]):
         <div class="stepper-content">
             <div class="stepper-title">REVENUE RECOVERED — Metric Impact {s8_badge}</div>
             <div class="stepper-body">
-                Recovered Amount: <strong>${rev_info['recovered_amount']:,.2f}</strong><br/>
+                Recovered Amount: <strong>{format_inr(rev_info['recovered_amount'], is_converted=True)}</strong><br/>
                 Final Execution Status: <code>{rev_info['status']}</code>
             </div>
         </div>
@@ -143,3 +144,4 @@ def render_workflow_stepper(pipeline_data: Dict[str, Any]):
     st.markdown(s8_html, unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
+

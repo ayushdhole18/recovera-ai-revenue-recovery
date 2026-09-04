@@ -330,6 +330,9 @@ def run_full_evaluation(db_path: str = DATABASE_PATH, export_files: bool = True,
     return evaluation_report_dict
 
 
+from app.utils.currency import format_inr, convert_usd_to_inr
+
+
 def generate_markdown_report(
     summary: BatchRecoverySummary,
     eval_m: EvaluationMetrics,
@@ -344,15 +347,15 @@ def generate_markdown_report(
     md.append(f"- **Total Failed Transactions Analyzed**: {summary.total_transactions_analyzed}")
     md.append(f"- **Potentially Recoverable Transactions**: {summary.recoverable_transactions} (classified by Detector)")
     md.append(f"- **Unrecoverable Transactions**: {summary.unrecoverable_transactions} (hard declines / permanent errors)")
-    md.append(f"- **Total Failed Revenue (At Risk)**: ${summary.total_failed_revenue:,.2f}")
-    md.append(f"- **Potentially Recoverable Revenue**: ${summary.potentially_recoverable_revenue:,.2f}")
-    md.append(f"- **Revenue Recovered**: ${summary.recovered_revenue:,.2f}")
+    md.append(f"- **Total Failed Revenue (At Risk)**: {format_inr(summary.total_failed_revenue, is_converted=False)}")
+    md.append(f"- **Potentially Recoverable Revenue**: {format_inr(summary.potentially_recoverable_revenue, is_converted=False)}")
+    md.append(f"- **Revenue Recovered**: {format_inr(summary.recovered_revenue, is_converted=False)}")
     md.append("")
     md.append("### Explicit Recovery Rate Metric Breakdown:")
     md.append(f"- **Recoverable Transaction Recovery Rate**: **{summary.recoverable_transaction_recovery_rate_pct:.2f}%** (`{summary.successful_recoveries} / {summary.recoverable_transactions}` recoverable transactions)")
     md.append(f"- **Overall Failed-Transaction Recovery Rate**: **{summary.overall_failed_transaction_recovery_rate_pct:.2f}%** (`{summary.successful_recoveries} / {summary.total_transactions_analyzed}` total failed transactions)")
-    md.append(f"- **Revenue Recovery Rate**: **{summary.revenue_recovery_rate_pct:.2f}%** (`${summary.recovered_revenue:,.2f} / ${summary.potentially_recoverable_revenue:,.2f}` recoverable revenue)")
-    md.append(f"- **Average Recovered Transaction Value**: **${summary.average_recovered_transaction_value:,.2f}** (`${summary.recovered_revenue:,.2f} / {summary.successful_recoveries}` recoveries)\n")
+    md.append(f"- **Revenue Recovery Rate**: **{summary.revenue_recovery_rate_pct:.2f}%** (`{format_inr(summary.recovered_revenue, is_converted=False)} / {format_inr(summary.potentially_recoverable_revenue, is_converted=False)}` recoverable revenue)")
+    md.append(f"- **Average Recovered Transaction Value**: **{format_inr(summary.average_recovered_transaction_value, is_converted=False)}** (`{format_inr(summary.recovered_revenue, is_converted=False)} / {summary.successful_recoveries}` recoveries)\n")
 
     md.append("## 2. Safety & Business Rule Enforcement Metrics\n")
     md.append(f"- **Total AI Recommendations Evaluated**: {safety_m.total_ai_recommendations}")
@@ -380,8 +383,9 @@ def generate_markdown_report(
     md.append("")
 
     md.append("## 4. Source Breakdown (Gemini AI vs Fallback Heuristic Engine)\n")
-    md.append(f"- **Gemini AI Diagnoses**: {eval_m.gemini_diagnosis_count} (Recovered: ${eval_m.gemini_recovered_revenue:,.2f})")
-    md.append(f"- **Fallback Engine Diagnoses**: {eval_m.fallback_diagnosis_count} (Recovered: ${eval_m.fallback_recovered_revenue:,.2f})\n")
+    md.append(f"- **Gemini AI Diagnoses**: {eval_m.gemini_diagnosis_count} (Recovered: {format_inr(eval_m.gemini_recovered_revenue, is_converted=False)})")
+    md.append(f"- **Fallback Engine Diagnoses**: {eval_m.fallback_diagnosis_count} (Recovered: {format_inr(eval_m.fallback_recovered_revenue, is_converted=False)})\n")
     md.append("> *Configuration Note: Offline evaluation run defaulted to the deterministic fallback engine (`is_fallback=True`) because `GEMINI_API_KEY` was omitted during benchmark execution to ensure offline speed, reproducibility, and zero API costs. Live execution uses Gemini 2.5 Flash when `GEMINI_API_KEY` is provided in `.env`.*\n")
 
     return "\n".join(md)
+

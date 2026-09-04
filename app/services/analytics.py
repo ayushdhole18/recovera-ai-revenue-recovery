@@ -94,6 +94,53 @@ def get_transaction_audit_timeline(transaction_id: str, db_path: str = DATABASE_
     return timeline
 
 
+def get_all_audit_logs(
+    db_path: str = DATABASE_PATH,
+    transaction_id: Optional[str] = None,
+    actor_filter: Optional[str] = None,
+    limit: int = 100
+) -> List[Dict[str, Any]]:
+    """
+    Retrieves full chronological audit logs from SQLite audit_trail table.
+    Supports filtering by transaction_id and actor.
+    """
+    conn = get_connection(db_path)
+    cursor = conn.cursor()
+    query = """
+        SELECT log_id, transaction_id, actor, action_taken, previous_status, new_status, details_json, timestamp
+        FROM audit_trail
+        WHERE 1=1
+    """
+    params = []
+    if transaction_id and transaction_id.strip():
+        query += " AND transaction_id LIKE ?"
+        params.append(f"%{transaction_id.strip()}%")
+    if actor_filter and actor_filter.upper() != "ALL":
+        query += " AND actor = ?"
+        params.append(actor_filter.upper())
+    query += " ORDER BY timestamp DESC, log_id DESC LIMIT ?"
+    params.append(limit)
+
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+    conn.close()
+
+    logs = []
+    for r in rows:
+        logs.append({
+            "log_id": r["log_id"],
+            "transaction_id": r["transaction_id"],
+            "actor": r["actor"],
+            "action_taken": r["action_taken"],
+            "previous_status": r["previous_status"],
+            "new_status": r["new_status"],
+            "details_json": r["details_json"],
+            "timestamp": r["timestamp"]
+        })
+    return logs
+
+
+
 def get_revenue_leakage_breakdown(
     transactions: List[Transaction],
     execution_results: Dict[str, ExecutionResult],
