@@ -1,0 +1,190 @@
+/* Recovera AI - Visual Design System
+   Visual Ratio: 70% Fintech Professional, 20% Futuristic AI, 10% Micro-animation */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg-dark: #0B0F17;
+  --surface-card: #141C2B;
+  --surface-elevated: #1B273D;
+  --border-color: #26354D;
+  --border-highlight: #3A4D6C;
+  --accent-ai: #6366F1;
+  --accent-ai-glow: rgba(99, 102, 241, 0.15);
+  --success: #10B981;
+  --success-bg: rgba(16, 185, 129, 0.12);
+  --warning: #F59E0B;
+  --warning-bg: rgba(245, 158, 11, 0.12);
+  --danger: #EF4444;
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+}
+
+/* Global App Styling */
+body, .stApp {
+  background-color: var(--bg-dark) !important;
+  color: var(--text-primary) !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* Header & Telemetry Bar */
+.telemetry-bar {
+  background: rgba(20, 28, 43, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-radius: 8px;
+}
+
+.brand-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-pill-live {
+  background: rgba(99, 102, 241, 0.18);
+  color: #818CF8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.badge-pill-fallback {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-pill-success {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-pill-danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Metric Cards */
+.fintech-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px 24px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.fintech-card:hover {
+  border-color: var(--border-highlight);
+}
+
+.metric-title {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.metric-subtext {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* Safety Guardrail Interception Banner */
+.safety-banner {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(20, 28, 43, 0.9) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-left: 4px solid var(--danger);
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin: 16px 0;
+}
+
+.safety-banner-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--danger);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Workflow Stepper */
+.stepper-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.stepper-item {
+  background: var(--surface-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.stepper-number {
+  background: var(--surface-elevated);
+  color: var(--accent-ai);
+  border: 1px solid var(--border-highlight);
+  font-weight: 700;
+  font-size: 0.9rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stepper-content {
+  flex-grow: 1;
+}
+
+.stepper-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.stepper-body {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
