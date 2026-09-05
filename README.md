@@ -1,5 +1,7 @@
 # ⚡ Recovera AI — Autonomous Revenue Recovery & Payment Failure Resolution Platform
 
+Website Link - https://recovera-ai.streamlit.app/
+
 Recovera AI is an intelligent, safety-first revenue recovery platform that detects failed payments, diagnoses failure root causes using Gemini 2.5 Flash, validates recovery strategies through a deterministic Merchant Rule Engine, and executes recovery workflows with real-time financial telemetry in Indian Rupees (INR ₹).
 
 ---
@@ -234,7 +236,7 @@ recovera-ai/
 
 ---
 
-## 🖼️ Application Screenshots
+##  Application Screenshots
 
 *(Placeholders — Add screenshots after launching the live application)*
 
@@ -252,7 +254,7 @@ recovera-ai/
 
 ---
 
-## 💻 Local Installation Instructions
+##  Local Installation Instructions
 
 ### Prerequisites
 - Python 3.10 or higher
@@ -282,7 +284,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🔑 Environment Variables
+##  Environment Variables
 
 Copy `.env.example` to `.env`:
 ```bash
@@ -300,7 +302,7 @@ DATABASE_PATH=data/recovera.db
 
 ---
 
-## 🚀 Running the Streamlit Application
+##  Running the Streamlit Application
 
 Launch the operational dashboard locally:
 ```bash
@@ -311,7 +313,7 @@ Open your browser at `http://localhost:8501`.
 
 ---
 
-## 🧪 Testing Instructions
+##  Testing Instructions
 
 Run the full automated test suite (75 unit and integration tests):
 ```bash
@@ -325,7 +327,7 @@ python -m pytest -v --tb=short
 
 ---
 
-## ☁️ Deployment Information
+##  Deployment Information
 
 Recovera AI can be deployed to cloud hosting platforms:
 
@@ -341,7 +343,7 @@ Recovera AI can be deployed to cloud hosting platforms:
 
 ---
 
-## ⚠️ Known Limitations
+##  Known Limitations
 
 1. **Simulated Gateway**: Credit card retries, dunning outreach, and payment links are executed through a deterministic simulator (`executor.py`) rather than live payment processor APIs (Stripe/Razorpay).
 2. **Local SQLite Storage**: In cloud hosting environments with ephemeral filesystems (e.g., Heroku or basic Render instances), SQLite database writes persist during runtime but reset on container restarts unless a persistent storage volume is attached.
