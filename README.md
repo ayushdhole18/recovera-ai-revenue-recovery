@@ -240,17 +240,21 @@ recovera-ai/
 
 *(Placeholders — Add screenshots after launching the live application)*
 
-| Executive Dashboard | At-Risk Workspace |
-|:---:|:---:|
-| ![Executive Dashboard Placeholder](https://via.placeholder.com/600x350/141C2B/F8FAFC?text=Executive+Dashboard+INR+Telemetry) | ![At-Risk Workspace Placeholder](https://via.placeholder.com/600x350/141C2B/F8FAFC?text=At-Risk+Transactions+Filterable+Grid) |
+| Executive Dashboard | - <img width="1683" height="787" alt="image" src="https://github.com/user-attachments/assets/cdca1065-27f4-4968-8fd3-94f6e90bba93" />
+| At-Risk Workspace | - <img width="1646" height="845" alt="image" src="https://github.com/user-attachments/assets/c1ae92af-4651-4204-aeb5-7546231863ac" />
 
-| 8-Step Recovery Stepper | AI Recovery Agent |
-|:---:|:---:|
-| ![8-Step Stepper Placeholder](https://via.placeholder.com/600x350/141C2B/F8FAFC?text=8-Step+Interactive+Recovery+Stepper) | ![AI Recovery Agent Placeholder](https://via.placeholder.com/600x350/141C2B/F8FAFC?text=AI+Agent+Diagnosis+%26+Advisory+Banner) |
 
-| Safety Rule Engine | Audit Trail Inspector |
-|:---:|:---:|
-| ![Safety Rule Engine Placeholder](https://via.placeholder.com/600x350/141C2B/F8FAFC?text=Safety+Rule+Engine+Configuration) | ![Audit Trail Inspector Placeholder](https://via.placeholder.com/600x350/141C2B/F8FAFC?text=Immutable+Audit+Trail+Timeline) |
+
+| 8-Step Recovery Stepper | - <img width="1725" height="815" alt="image" src="https://github.com/user-attachments/assets/c0ca53b7-bb3c-463a-8bb2-9e6261f9053a" />
+| AI Recovery Agent | - <img width="1696" height="722" alt="image" src="https://github.com/user-attachments/assets/0f8da1ca-d5bc-4a4f-8370-c64b4fff0374" />
+
+
+
+| Safety Rule Engine | - <img width="1691" height="848" alt="image" src="https://github.com/user-attachments/assets/593749e9-a21a-4586-a94a-fab6909a19d0" />
+
+| Audit Trail Inspector | - <img width="1645" height="735" alt="image" src="https://github.com/user-attachments/assets/230418c9-ace3-4fc2-b89a-58cf7f4db28d" />
+
+
 
 ---
 
